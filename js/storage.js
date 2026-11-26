@@ -1,4 +1,5 @@
 const DB_NAME = 'clinic_analytics_v5_expanded';
+const DB_VERSION = 2;
 const stores = {
   Departments: ['department_id', {}],
   Doctors: ['doctor_id', { department_id: false, snils: true }],
@@ -11,6 +12,10 @@ export function validate(data) {
   for (const [table, [key]] of Object.entries(stores)) {
     if (!Array.isArray(data[table])) throw new Error(`Нет таблицы ${table}`);
     const ids = data[table].map(row => row[key]);
+    const fields = Object.keys(data[table][0] ?? {});
+    if (data[table].some(row => fields.some(field => row[field] == null || row[field] === ''))) {
+      throw new Error(`Пропуски в таблице ${table}`);
+    }
     if (ids.some(id => !Number.isInteger(id)) || new Set(ids).size !== ids.length) {
       throw new Error(`Некорректные ключи: ${table}`);
     }
@@ -21,7 +26,7 @@ export function validate(data) {
   const patients = ids('Patients', 'patient_id');
   if (data.Doctors.some(row => !departments.has(row.department_id)) ||
       data.Appointments.some(row => !doctors.has(row.doctor_id) || !patients.has(row.patient_id) ||
-        (row.waiting_time !== null && (!Number.isFinite(row.waiting_time) || row.waiting_time < 0))) ||
+        (!Number.isFinite(row.waiting_time) || row.waiting_time < 0)) ||
       data.KPI_Records.some(row => !doctors.has(row.doctor_id) || !Number.isInteger(row.patients_count) || row.patients_count < 0)) {
     throw new Error('Некорректные связи или значения в базе');
   }
@@ -37,11 +42,14 @@ async function loadSeed() {
 
 function openDatabase(seed) {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 1);
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
     request.onupgradeneeded = () => {
       for (const [table, [keyPath, indexes]] of Object.entries(stores)) {
-        const store = request.result.createObjectStore(table, { keyPath });
-        for (const [key, unique] of Object.entries(indexes)) {
+        // Версия 2 обновляет исходный набор в уже опубликованном приложении.
+        const exists = request.result.objectStoreNames.contains(table);
+        const store = exists ? request.transaction.objectStore(table) : request.result.createObjectStore(table, { keyPath });
+        if (exists) store.clear();
+        else for (const [key, unique] of Object.entries(indexes)) {
           store.createIndex(key, key, { unique });
         }
         for (const row of seed[table]) store.add(row);

@@ -1,7 +1,7 @@
 import { categories } from './analytics.js';
 export const $ = id => document.getElementById(id);
-export const fmt = (value, digits = 1) => value == null || !Number.isFinite(value) ? '—' : value.toLocaleString('ru-RU', { maximumFractionDigits: digits });
-export const dateFmt = value => value ? value.split('-').reverse().join('.') : '—';
+export const fmt = (value, digits = 1) => value == null || !Number.isFinite(value) ? '–' : value.toLocaleString('ru-RU', { maximumFractionDigits: digits });
+export const dateFmt = value => value ? value.split('-').reverse().join('.') : '–';
 export const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 export const categoryLabel = key => categories.find(category => category[0] === key)?.[1] ?? key;
 export const empty = columns => `<tr><td colspan="${columns}" class="empty">Нет записей по выбранным условиям</td></tr>`;
@@ -14,12 +14,13 @@ export function options(items, key, label, all) {
 }
 export function bars(element, rows, metric, suffix = '', threshold = null) {
   if (!rows.length) { element.innerHTML = '<p class="empty">Нет данных</p>'; return; }
-  const max = Math.max(1, threshold ?? 0, ...rows.map(row => row[metric] ?? 0));
+  const max = Math.max(1, threshold ?? 0, ...rows.map(row => Math.max(row[metric] ?? 0, row.threshold ?? 0)));
   element.innerHTML = rows.map(row => {
     const value = row[metric];
+    const marker = row.threshold ?? threshold;
     return `<div class="bar-row"><span>${esc(row.name)}</span><strong>${fmt(value)}${value === null ? '' : suffix}</strong>
       <div class="bar-track"><div class="bar-fill ${threshold !== null && value >= threshold ? 'critical' : ''}" style="width:${100 * (value ?? 0) / max}%"></div>
-      ${threshold === null ? '' : `<span class="bar-threshold" style="left:${100 * threshold / max}%" title="Порог ${threshold}"></span>`}</div></div>`;
+      ${marker === null ? '' : `<span class="bar-threshold" style="left:${100 * marker / max}%" title="Порог ${marker}"></span>`}</div></div>`;
   }).join('') + `<div class="axis"><span>0</span><span>${fmt(max)}${suffix}</span></div>`;
 }
 export function lineChart(element, rows, period, metric) {
@@ -38,7 +39,13 @@ export function lineChart(element, rows, period, metric) {
   const step = Math.max(1, Math.ceil(rows.length / 6));
   rows.forEach((row, i) => {
     svg += `<circle cx="${x(i)}" cy="${y(row.value)}" r="${rows.length > 30 ? 2 : 4}" fill="#147d86"><title>${esc(row.date)}: ${fmt(row.value)}</title></circle>`;
-    if (rows.length <= 7) svg += `<text class="point-label" x="${x(i)}" y="${Math.max(12, y(row.value) - 9)}" text-anchor="middle">${fmt(row.value)}</text>`;
+    if (rows.length <= 7) {
+      const first = i === 0 && rows.length > 1;
+      const last = i === rows.length - 1 && rows.length > 1;
+      const anchor = first ? 'start' : last ? 'end' : 'middle';
+      const labelX = x(i) + (first ? 6 : last ? -6 : 0);
+      svg += `<text class="point-label" x="${labelX}" y="${Math.max(12, y(row.value) - 9)}" text-anchor="${anchor}">${fmt(row.value)}</text>`;
+    }
     if (i === 0 || i === rows.length - 1 || (i % step === 0 && rows.length - 1 - i >= step / 2)) {
       const label = period === 'month' ? row.date.slice(5) + '.' + row.date.slice(0, 4) : row.date.slice(8) + '.' + row.date.slice(5, 7);
       svg += `<text x="${x(i)}" y="${height - 12}" text-anchor="middle">${label}</text>`;
