@@ -28,10 +28,8 @@ function applyAccount(next, initial = false) {
   $('profile-role').textContent = role.title;
   $('profile-scope').textContent = account.role === 'head' ? data.Departments[0].department_name :
     account.role === 'doctor' ? data.Doctors[0].specialty : 'Вся поликлиника';
-  $('workspace-title').textContent = account.role === 'registrar' ? 'Рабочий стол регистратуры' :
-    account.role === 'doctor' ? 'Рабочий стол врача' : 'Рабочий стол';
-  $('workspace-description').textContent = account.role === 'registrar' ? 'Просмотр записей и времени ожидания' :
-    account.role === 'doctor' ? 'Мои приёмы и нагрузка' : 'Посещаемость, ожидание и нагрузка персонала';
+  $('workspace-title').textContent = account.role === 'doctor' ? 'Рабочий стол врача' : 'Рабочий стол';
+  $('workspace-description').textContent = account.role === 'doctor' ? 'Мои приёмы и нагрузка' : 'Посещаемость, ожидание и нагрузка персонала';
   for (const section of ['dashboard', 'registry', 'workload']) {
     $(section).hidden = !canView(section);
     document.querySelector(`.nav[data-section="${section}"]`).hidden = !canView(section);

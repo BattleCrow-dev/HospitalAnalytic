@@ -14,13 +14,6 @@ export const roles = {
     sections: ['dashboard', 'registry', 'workload'],
     export: true
   },
-  registrar: {
-    title: 'Регистратор',
-    name: 'Марина Игоревна Соколова',
-    avatar: 'assets/avatars/registrar.webp',
-    sections: ['registry'],
-    export: false
-  },
   doctor: {
     title: 'Врач',
     avatar: 'assets/avatars/doctor.webp',
@@ -51,7 +44,7 @@ export function scopedData(data, account) {
     Doctors: doctors,
     Patients: data.Patients.filter(row => patientIds.has(row.patient_id)),
     Appointments: appointments,
-    KPI_Records: account.role === 'registrar' ? [] : data.KPI_Records.filter(row => doctorIds.has(row.doctor_id))
+    KPI_Records: data.KPI_Records.filter(row => doctorIds.has(row.doctor_id))
   };
 }
 
