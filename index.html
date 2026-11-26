@@ -5,7 +5,7 @@
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
     <meta content="Аналитика приёмов и нагрузки врачей" name="description"/>
     <title>
-      Поликлиника | Аналитика
+      Поликлиника | Рабочий стол
     </title>
     <link href="favicon.svg" rel="icon" type="image/svg+xml"/>
     <link href="style.css" rel="stylesheet"/>
@@ -14,17 +14,16 @@
   </head>
   <body>
     <aside class="sidebar">
-      <a aria-label="Поликлиника, обзор" class="brand" href="#dashboard">
+      <a aria-label="Поликлиника, обзор" class="brand" href="#" id="brand-home">
         <img alt="" class="brand-icon" height="40" src="favicon.svg" width="40"/>
         <span>
           <strong>
             Поликлиника
           </strong>
-          <small>
-            Аналитика
-          </small>
+          <small>Аналитическая система</small>
         </span>
       </a>
+      <div class="nav-caption">Рабочее пространство</div>
       <nav aria-label="Разделы">
         <a class="nav active" data-section="dashboard" href="#dashboard">
           <svg viewBox="0 0 24 24">
@@ -37,7 +36,7 @@
             <rect height="7" rx="1" width="7" x="14" y="14">
             </rect>
           </svg>
-          Обзор
+          <span>Обзор</span>
         </a>
         <a class="nav" data-section="registry" href="#registry">
           <svg viewBox="0 0 24 24">
@@ -46,16 +45,22 @@
             <path d="M3 9h18M8 9v11M3 14h18">
             </path>
           </svg>
-          Реестр приёмов
+          <span>Реестр приёмов</span>
         </a>
         <a class="nav" data-section="workload" href="#workload">
           <svg viewBox="0 0 24 24">
             <path d="M3 20h18M5 16v-5M12 16V4M19 16V8">
             </path>
           </svg>
-          Нагрузка врачей
+          <span>Нагрузка врачей</span>
         </a>
       </nav>
+      <section class="account-panel" aria-label="Профиль доступа">
+        <label for="role">Роль</label>
+        <select id="role" disabled></select>
+        <label id="account-department-label" hidden>Отделение<select id="account-department"></select></label>
+        <label id="account-doctor-label" hidden>Врач<select id="account-doctor"></select></label>
+      </section>
       <section class="date-filter" aria-label="Период анализа">
         <div class="date-heading">
           <h2>Период анализа</h2>
@@ -76,14 +81,19 @@
       </div>
     </aside>
     <main>
-      <header class="top section-anchor" id="dashboard">
+      <header class="top">
         <div>
-          <h1>
-            Обзор работы поликлиники
-          </h1>
-          <p>
-            Посещаемость и время ожидания
-          </p>
+          <div class="eyebrow">Поликлиника / Аналитика</div>
+          <h1 id="workspace-title">Рабочий стол</h1>
+          <p id="workspace-description">Посещаемость, ожидание и нагрузка персонала</p>
+        </div>
+        <div class="profile-summary" aria-live="polite">
+          <img id="profile-avatar" class="profile-avatar" src="assets/avatars/chief.webp" alt="" width="52" height="52"/>
+          <div>
+            <strong id="profile-name">Сергей Викторович Андреев</strong>
+            <small id="profile-role">Главный врач</small>
+            <small id="profile-scope">Вся поликлиника</small>
+          </div>
         </div>
       </header>
       <div class="error" hidden="" id="error" role="alert">
@@ -92,11 +102,12 @@
         Загрузка данных…
       </div>
       <div hidden="" id="content">
-        <section aria-label="Обзор показателей" class="page">
+        <section aria-label="Обзор показателей" class="page section-anchor" id="dashboard">
+          <h2 class="section-title">Обзор показателей</h2>
           <div class="cards" id="cards">
           </div>
-          <div class="chart-grid">
-            <article class="panel">
+          <div class="chart-grid" id="overview-charts">
+            <article class="panel" id="comparison-panel">
               <div class="section-head">
                 <h2>
                   Сравнение показателей
@@ -336,7 +347,7 @@
           </h2>
           <div class="cards" id="kcards">
           </div>
-          <article class="panel">
+          <article class="panel" id="workload-comparison-panel">
             <div class="section-head">
               <h2>
                 Средняя нагрузка по врачам

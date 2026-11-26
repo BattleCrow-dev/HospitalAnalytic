@@ -35,10 +35,10 @@ export function lineChart(element, rows, period, metric) {
     svg += `<line x1="${left}" x2="${width - right}" y1="${y(value)}" y2="${y(value)}" stroke="#e5eaf0"/><text x="${left - 7}" y="${y(value) + 4}" text-anchor="end">${fmt(value)}</text>`;
   }
   if (metric === 'avg') svg += `<line x1="${left}" x2="${width - right}" y1="${y(30)}" y2="${y(30)}" stroke="#d05a5e" stroke-dasharray="5 4"/>`;
-  svg += `<polyline fill="none" stroke="#147d86" stroke-width="2.7" stroke-linejoin="round" points="${rows.map((row, i) => `${x(i)},${y(row.value)}`).join(' ')}"/>`;
+  svg += `<polyline fill="none" stroke="#176c77" stroke-width="2.7" stroke-linejoin="round" points="${rows.map((row, i) => `${x(i)},${y(row.value)}`).join(' ')}"/>`;
   const step = Math.max(1, Math.ceil(rows.length / 6));
   rows.forEach((row, i) => {
-    svg += `<circle cx="${x(i)}" cy="${y(row.value)}" r="${rows.length > 30 ? 2 : 4}" fill="#147d86"><title>${esc(row.date)}: ${fmt(row.value)}</title></circle>`;
+    svg += `<circle cx="${x(i)}" cy="${y(row.value)}" r="${rows.length > 30 ? 2 : 4}" fill="#176c77"><title>${esc(row.date)}: ${fmt(row.value)}</title></circle>`;
     if (rows.length <= 7) {
       const first = i === 0 && rows.length > 1;
       const last = i === rows.length - 1 && rows.length > 1;
